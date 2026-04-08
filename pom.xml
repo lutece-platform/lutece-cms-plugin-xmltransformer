@@ -47,4 +47,9 @@
     <properties>
         <componentName>xmltransformer</componentName>
     </properties>
+    <scm>
+        <connection>scm:git:https://github.com/lutece-platform/lutece-cms-plugin-xmltransformer.git</connection>
+        <developerConnection>scm:git:https://github.com/lutece-platform/lutece-cms-plugin-xmltransformer.git</developerConnection>
+        <url>https://github.com/lutece-platform/lutece-cms-plugin-xmltransformer.git</url>
+    </scm>
 </project>
