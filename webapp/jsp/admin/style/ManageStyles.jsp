@@ -1,9 +1,8 @@
 <%@ page errorPage="../ErrorPage.jsp" %>
+${ pageContext.setAttribute( 'strContent', stylesJspBean.processController( pageContext.request , pageContext.response ) ) }
+
 <jsp:include page="../AdminHeader.jsp" />
 
-<jsp:useBean id="style" scope="session" class="fr.paris.lutece.portal.web.style.StylesJspBean" />
-
-<% style.init(request, style.RIGHT_MANAGE_STYLE ); %>
-<%= style.getStylesManagement ( request )%>
+${ pageContext.getAttribute( 'strContent' ) }
 
 <%@ include file="../AdminFooter.jsp" %>

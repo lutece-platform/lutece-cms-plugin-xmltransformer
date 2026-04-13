@@ -36,7 +36,13 @@ package fr.paris.lutece.portal.business.portlet;
 import fr.paris.lutece.portal.business.stylesheet.StyleSheet;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
 
+@ApplicationScoped
+@Alternative
+@Priority( 10 )
 public class PortletStyleXslDAO implements IPortletStyleDAO
 {
 

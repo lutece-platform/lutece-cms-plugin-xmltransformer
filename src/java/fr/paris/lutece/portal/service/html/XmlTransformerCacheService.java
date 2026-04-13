@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2025, City of Paris
+ * Copyright (c) 2002-2022, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,31 +33,37 @@
  */
 package fr.paris.lutece.portal.service.html;
 
+import fr.paris.lutece.portal.service.cache.CacheConfigUtil;
 import fr.paris.lutece.portal.service.cache.CacheService;
 import fr.paris.lutece.portal.service.cache.CacheableService;
 import fr.paris.lutece.util.xml.XmlTransformer;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import jakarta.servlet.ServletContext;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * XmlTransformerCacheService
  * 
  * @since v 3.0
  */
-public class XmlTransformerCacheService implements CacheableService
+@ApplicationScoped
+public class XmlTransformerCacheService implements CacheableService<String,String>
 {
     private static final String SERVICE_NAME = "XML Transformer Cache Service (XSLT)";
     private static final String MSG_KEYS_NOT_AVAILABLE = "Keys not available";
+    
+    private static final Logger logger = LogManager.getLogger(CacheConfigUtil.CACHE_LOGGER_NAME);
 
-    /**
-     * Inits the.
-     */
-    public static void init( )
-    {
-        CacheService.registerCacheableService( new XmlTransformerCacheService( ) );
-    }
-
+    @Inject 
+    XmlTransformerCacheService xmlTransformerCacheService;
     /**
      * {@inheritDoc }
      */
@@ -92,6 +98,7 @@ public class XmlTransformerCacheService implements CacheableService
     public void resetCache( )
     {
         XmlTransformer.cleanTransformerList( );
+        logger.debug( "XmlTransformer cache service cache has been reset" );
     }
 
     /**
@@ -119,35 +126,30 @@ public class XmlTransformerCacheService implements CacheableService
      * {@inheritDoc }
      */
     @Override
-    public int getMaxElements( )
-    {
-        return XmlTransformer.TRANSFORMER_POOL_SIZE * XmlTransformer.MAX_TRANSFORMER_SIZE;
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public long getTimeToLive( )
-    {
-        return 0L;
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public long getMemorySize( )
-    {
-        return 0L;
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    @Override
     public String getInfos( )
     {
         return "This cache can't be disabled - Poolsize = " + XmlTransformer.TRANSFORMER_POOL_SIZE;
     }
+
+    /**
+    * This method observes the initialization of the {@link ApplicationScoped} context
+    * and registers an instance of {@link XmlTransformerCacheService} with the {@link CacheService}.
+    *
+    * <p>This method is triggered automatically by CDI when the {@link ApplicationScoped} context is initialized,
+    * which typically occurs during the startup of the application server.</p>
+    *
+    * @param context the {@link ServletContext} that is initialized. This parameter is observed
+    *                and injected automatically by CDI when the {@link ApplicationScoped} context is initialized.
+    */
+    public void initializedService(@Observes @Initialized(ApplicationScoped.class) 
+   	ServletContext context){		
+        CacheService.registerCacheableService( xmlTransformerCacheService );     
+   	}
+
+    @Override
+    public boolean isPreventGlobalReset( )
+    {
+        return false;
+    }
+
 }

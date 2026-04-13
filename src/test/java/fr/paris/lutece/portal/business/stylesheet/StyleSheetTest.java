@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2025, City of Paris
+ * Copyright (c) 2002-2022, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,8 @@
  */
 package fr.paris.lutece.portal.business.stylesheet;
 
+import org.junit.jupiter.api.Test;
+
 import fr.paris.lutece.test.LuteceTestCase;
 
 public class StyleSheetTest extends LuteceTestCase
@@ -44,6 +46,7 @@ public class StyleSheetTest extends LuteceTestCase
     private final static String SOURCE1 = "<xsl Source 1>";
     private final static String SOURCE2 = "<xsl Source 2>";
 
+    @Test
     public void testBusiness( )
     {
         // Initialize an object

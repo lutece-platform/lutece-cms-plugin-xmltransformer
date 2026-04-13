@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2025, City of Paris
+ * Copyright (c) 2002-2022, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@ package fr.paris.lutece.portal.business.stylesheet;
 
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.util.sql.DAOUtil;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import java.util.Collection;
 /**
  * This class provides Data Access methods for StyleSheet objects
  */
+@ApplicationScoped
 public final class StyleSheetDAO implements IStyleSheetDAO
 {
     // Constants

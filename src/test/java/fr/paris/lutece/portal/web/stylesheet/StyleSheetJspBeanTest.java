@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2025, City of Paris
+ * Copyright (c) 2002-2022, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,10 +42,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.mock.web.MockHttpServletRequest;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import fr.paris.lutece.portal.business.style.Style;
 import fr.paris.lutece.portal.business.style.StyleHome;
@@ -55,11 +55,17 @@ import fr.paris.lutece.portal.business.user.AdminUser;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
+import fr.paris.lutece.portal.service.security.ISecurityTokenService;
 import fr.paris.lutece.portal.service.security.SecurityTokenService;
+import fr.paris.lutece.portal.service.upload.MultipartItem;
+import fr.paris.lutece.test.AdminUserUtils;
 import fr.paris.lutece.portal.web.constants.Parameters;
 import fr.paris.lutece.portal.web.upload.MultipartHttpServletRequest;
 import fr.paris.lutece.test.LuteceTestCase;
-import fr.paris.lutece.test.Utils;
+import fr.paris.lutece.test.mocks.MockHttpServletRequest;
+import fr.paris.lutece.test.mocks.MockMultipartItem;
+import fr.paris.lutece.test.mocks.TemporaryMultipartItemFactory;
+import jakarta.inject.Inject;
 
 /**
  * StyleSheetJspBean Test Class
@@ -67,16 +73,16 @@ import fr.paris.lutece.test.Utils;
  */
 public class StyleSheetJspBeanTest extends LuteceTestCase
 {
-
+    @Inject
     private StyleSheetJspBean instance;
     private Style style;
     private StyleSheet stylesheet;
+    @Inject
+    private ISecurityTokenService _securityTokenService;
 
-    @Override
+    @BeforeEach
     protected void setUp( ) throws Exception
     {
-        super.setUp( );
-        instance = new StyleSheetJspBean( );
         style = new Style( );
         int nId = StyleHome.getStylesList( ).stream( ).map( Style::getId ).max( Integer::compare ).get( ) + 1;
         style.setId( nId );
@@ -92,12 +98,11 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
         StyleSheetHome.create( stylesheet );
     }
 
-    @Override
+    @AfterEach
     protected void tearDown( ) throws Exception
     {
         StyleSheetHome.remove( stylesheet.getId( ) );
         StyleHome.remove( style.getId( ) );
-        super.tearDown( );
     }
 
     private String getRandomName( )
@@ -110,10 +115,11 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
     /**
      * Test of getManageStyleSheet method, of class fr.paris.lutece.portal.web.stylesheet.StyleSheetJspBean.
      */
+    @Test
     public void testGetStyleSheetManagement( ) throws AccessDeniedException
     {
         MockHttpServletRequest request = new MockHttpServletRequest( );
-        Utils.registerAdminUserWithRigth( request, new AdminUser( ), StyleSheetJspBean.RIGHT_MANAGE_STYLESHEET );
+        AdminUserUtils.registerAdminUserWithRight( request, new AdminUser( ), StyleSheetJspBean.RIGHT_MANAGE_STYLESHEET );
 
         instance.init( request, StyleSheetJspBean.RIGHT_MANAGE_STYLESHEET );
         assertTrue( StringUtils.isNotEmpty( instance.getManageStyleSheet( request ) ) );
@@ -122,11 +128,12 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
     /**
      * Test of getCreateStyleSheet method, of class fr.paris.lutece.portal.web.stylesheet.StyleSheetJspBean.
      */
+    @Test
     public void testGetCreateStyleSheet( ) throws AccessDeniedException
     {
         MockHttpServletRequest request = new MockHttpServletRequest( );
         request.addParameter( Parameters.MODE_ID, "0" );
-        Utils.registerAdminUserWithRigth( request, new AdminUser( ), StyleSheetJspBean.RIGHT_MANAGE_STYLESHEET );
+        AdminUserUtils.registerAdminUserWithRight( request, new AdminUser( ), StyleSheetJspBean.RIGHT_MANAGE_STYLESHEET );
 
         instance.init( request, StyleSheetJspBean.RIGHT_MANAGE_STYLESHEET );
         String html = instance.getCreateStyleSheet( request );
@@ -139,6 +146,7 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
      * @throws IOException
      * @throws AccessDeniedException
      */
+    @Test
     public void testDoCreateStyleSheet( ) throws IOException, AccessDeniedException
     {
         MockHttpServletRequest request = new MockHttpServletRequest( );
@@ -154,11 +162,11 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
                 "0"
         } );
         parameters.put( SecurityTokenService.PARAMETER_TOKEN, new String [ ] {
-                SecurityTokenService.getInstance( ).getToken( request, "admin/stylesheet/create_stylesheet.html" )
+                _securityTokenService.getToken( request, "admin/stylesheet/create_stylesheet.html" )
         } );
-        Map<String, List<FileItem>> multipartFiles = new HashMap<>( );
-        List<FileItem> items = new ArrayList<>( );
-        FileItem source = new DiskFileItemFactory( ).createItem( Parameters.STYLESHEET_SOURCE, "application/xml", true, randomName );
+        Map<String, List<MultipartItem>> multipartFiles = new HashMap<>( );
+        List<MultipartItem> items = new ArrayList<>( );
+        MockMultipartItem source = TemporaryMultipartItemFactory.create( Parameters.STYLESHEET_SOURCE, "application/xml", randomName );
         source.getOutputStream( ).write( "<a/>".getBytes( ) );
         items.add( source );
         multipartFiles.put( Parameters.STYLESHEET_SOURCE, items );
@@ -174,7 +182,7 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
                     .forEach( stylesheet -> StyleSheetHome.remove( stylesheet.getId( ) ) );
         }
     }
-
+    @Test
     public void testDoCreateStyleSheetInvalidToken( ) throws IOException, AccessDeniedException
     {
         MockHttpServletRequest request = new MockHttpServletRequest( );
@@ -190,11 +198,11 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
                 "0"
         } );
         parameters.put( SecurityTokenService.PARAMETER_TOKEN, new String [ ] {
-                SecurityTokenService.getInstance( ).getToken( request, "admin/stylesheet/create_stylesheet.html" ) + "b"
+                _securityTokenService.getToken( request, "admin/stylesheet/create_stylesheet.html" ) + "b"
         } );
-        Map<String, List<FileItem>> multipartFiles = new HashMap<>( );
-        List<FileItem> items = new ArrayList<>( );
-        FileItem source = new DiskFileItemFactory( ).createItem( Parameters.STYLESHEET_SOURCE, "application/xml", true, randomName );
+        Map<String, List<MultipartItem>> multipartFiles = new HashMap<>( );
+        List<MultipartItem> items = new ArrayList<>( );
+        MockMultipartItem source = TemporaryMultipartItemFactory.create( Parameters.STYLESHEET_SOURCE, "application/xml", randomName );
         source.getOutputStream( ).write( "<a/>".getBytes( ) );
         items.add( source );
         multipartFiles.put( Parameters.STYLESHEET_SOURCE, items );
@@ -214,7 +222,7 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
                     .forEach( stylesheet -> StyleSheetHome.remove( stylesheet.getId( ) ) );
         }
     }
-
+    @Test
     public void testDoCreateStyleSheetNoToken( ) throws IOException, AccessDeniedException
     {
         MockHttpServletRequest request = new MockHttpServletRequest( );
@@ -229,9 +237,9 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
         parameters.put( Parameters.MODE_STYLESHEET, new String [ ] {
                 "0"
         } );
-        Map<String, List<FileItem>> multipartFiles = new HashMap<>( );
-        List<FileItem> items = new ArrayList<>( );
-        FileItem source = new DiskFileItemFactory( ).createItem( Parameters.STYLESHEET_SOURCE, "application/xml", true, randomName );
+        Map<String, List<MultipartItem>> multipartFiles = new HashMap<>( );
+        List<MultipartItem> items = new ArrayList<>( );
+        MockMultipartItem source = TemporaryMultipartItemFactory.create( Parameters.STYLESHEET_SOURCE, "application/xml", randomName );
         source.getOutputStream( ).write( "<a/>".getBytes( ) );
         items.add( source );
         multipartFiles.put( Parameters.STYLESHEET_SOURCE, items );
@@ -255,11 +263,12 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
     /**
      * Test of getModifyStyleSheet method, of class fr.paris.lutece.portal.web.stylesheet.StyleSheetJspBean.
      */
+    @Test
     public void testGetModifyStyleSheet( ) throws AccessDeniedException
     {
         MockHttpServletRequest request = new MockHttpServletRequest( );
         request.addParameter( Parameters.STYLESHEET_ID, Integer.toString( stylesheet.getId( ) ) );
-        Utils.registerAdminUserWithRigth( request, new AdminUser( ), StyleSheetJspBean.RIGHT_MANAGE_STYLESHEET );
+        AdminUserUtils.registerAdminUserWithRight( request, new AdminUser( ), StyleSheetJspBean.RIGHT_MANAGE_STYLESHEET );
 
         instance.init( request, StyleSheetJspBean.RIGHT_MANAGE_STYLESHEET );
         assertNotNull( instance.getModifyStyleSheet( request ) );
@@ -271,6 +280,7 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
      * @throws AccessDeniedException
      * @throws IOException
      */
+    @Test
     public void testDoModifyStyleSheet( ) throws AccessDeniedException, IOException
     {
         MockHttpServletRequest request = new MockHttpServletRequest( );
@@ -288,11 +298,11 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
                 Integer.toString( stylesheet.getModeId( ) )
         } );
         parameters.put( SecurityTokenService.PARAMETER_TOKEN, new String [ ] {
-                SecurityTokenService.getInstance( ).getToken( request, "admin/stylesheet/modify_stylesheet.html" )
+                _securityTokenService.getToken( request, "admin/stylesheet/modify_stylesheet.html" )
         } );
-        Map<String, List<FileItem>> multipartFiles = new HashMap<>( );
-        List<FileItem> items = new ArrayList<>( );
-        FileItem source = new DiskFileItemFactory( ).createItem( Parameters.STYLESHEET_SOURCE, "application/xml", true, stylesheet.getDescription( ) );
+        Map<String, List<MultipartItem>> multipartFiles = new HashMap<>( );
+        List<MultipartItem> items = new ArrayList<>( );
+        MockMultipartItem source = TemporaryMultipartItemFactory.create( Parameters.STYLESHEET_SOURCE, "application/xml", stylesheet.getDescription( ) );
         source.getOutputStream( ).write( "<a/>".getBytes( ) );
         items.add( source );
         multipartFiles.put( Parameters.STYLESHEET_SOURCE, items );
@@ -305,7 +315,7 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
         assertNotNull( stored );
         assertEquals( stylesheet.getDescription( ) + "_mod", stored.getDescription( ) );
     }
-
+    @Test
     public void testDoModifyStyleSheetInvalidToken( ) throws AccessDeniedException, IOException
     {
         MockHttpServletRequest request = new MockHttpServletRequest( );
@@ -323,11 +333,11 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
                 Integer.toString( stylesheet.getModeId( ) )
         } );
         parameters.put( SecurityTokenService.PARAMETER_TOKEN, new String [ ] {
-                SecurityTokenService.getInstance( ).getToken( request, "admin/stylesheet/modify_stylesheet.html" ) + "b"
+                _securityTokenService.getToken( request, "admin/stylesheet/modify_stylesheet.html" ) + "b"
         } );
-        Map<String, List<FileItem>> multipartFiles = new HashMap<>( );
-        List<FileItem> items = new ArrayList<>( );
-        FileItem source = new DiskFileItemFactory( ).createItem( Parameters.STYLESHEET_SOURCE, "application/xml", true, stylesheet.getDescription( ) );
+        Map<String, List<MultipartItem>> multipartFiles = new HashMap<>( );
+        List<MultipartItem> items = new ArrayList<>( );
+        MockMultipartItem source = TemporaryMultipartItemFactory.create( Parameters.STYLESHEET_SOURCE, "application/xml", stylesheet.getDescription( ) );
         source.getOutputStream( ).write( "<a/>".getBytes( ) );
         items.add( source );
         multipartFiles.put( Parameters.STYLESHEET_SOURCE, items );
@@ -344,7 +354,7 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
             assertEquals( stylesheet.getDescription( ), stored.getDescription( ) );
         }
     }
-
+    @Test
     public void testDoModifyStyleSheetNoToken( ) throws AccessDeniedException, IOException
     {
         MockHttpServletRequest request = new MockHttpServletRequest( );
@@ -361,9 +371,9 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
         parameters.put( Parameters.MODE_STYLESHEET, new String [ ] {
                 Integer.toString( stylesheet.getModeId( ) )
         } );
-        Map<String, List<FileItem>> multipartFiles = new HashMap<>( );
-        List<FileItem> items = new ArrayList<>( );
-        FileItem source = new DiskFileItemFactory( ).createItem( Parameters.STYLESHEET_SOURCE, "application/xml", true, stylesheet.getDescription( ) );
+        Map<String, List<MultipartItem>> multipartFiles = new HashMap<>( );
+        List<MultipartItem> items = new ArrayList<>( );
+        MockMultipartItem source = TemporaryMultipartItemFactory.create( Parameters.STYLESHEET_SOURCE, "application/xml", stylesheet.getDescription( ) );
         source.getOutputStream( ).write( "<a/>".getBytes( ) );
         items.add( source );
         multipartFiles.put( Parameters.STYLESHEET_SOURCE, items );
@@ -384,12 +394,13 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
     /**
      * Test of getConfirmRemoveStyleSheet method, of class fr.paris.lutece.portal.web.stylesheet.StyleSheetJspBean.
      */
+    @Test
     public void testGetConfirmRemoveStyleSheet( ) throws AccessDeniedException
     {
         MockHttpServletRequest request = new MockHttpServletRequest( );
         request.addParameter( Parameters.STYLESHEET_ID, Integer.toString( stylesheet.getId( ) ) );
         request.addParameter( Parameters.STYLE_ID, Integer.toString( style.getId( ) ) );
-        Utils.registerAdminUserWithRigth( request, new AdminUser( ), StyleSheetJspBean.RIGHT_MANAGE_STYLESHEET );
+        AdminUserUtils.registerAdminUserWithRight( request, new AdminUser( ), StyleSheetJspBean.RIGHT_MANAGE_STYLESHEET );
 
         instance.init( request, StyleSheetJspBean.RIGHT_MANAGE_STYLESHEET );
         instance.getRemoveStyleSheet( request );
@@ -403,25 +414,26 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
      * 
      * @throws AccessDeniedException
      */
+    @Test
     public void testDoRemoveStyleSheet( ) throws AccessDeniedException
     {
         MockHttpServletRequest request = new MockHttpServletRequest( );
         request.addParameter( Parameters.STYLESHEET_ID, Integer.toString( stylesheet.getId( ) ) );
         request.addParameter( Parameters.STYLE_ID, Integer.toString( style.getId( ) ) );
         request.addParameter( SecurityTokenService.PARAMETER_TOKEN,
-                SecurityTokenService.getInstance( ).getToken( request, "jsp/admin/style/DoRemoveStyleSheet.jsp" ) );
+                _securityTokenService.getToken( request, "jsp/admin/style/DoRemoveStyleSheet.jsp" ) );
 
         instance.doRemoveStyleSheet( request );
         assertNull( StyleSheetHome.findByPrimaryKey( stylesheet.getId( ) ) );
     }
-
+    @Test
     public void testDoRemoveStyleSheetInvalidToken( ) throws AccessDeniedException
     {
         MockHttpServletRequest request = new MockHttpServletRequest( );
         request.addParameter( Parameters.STYLESHEET_ID, Integer.toString( stylesheet.getId( ) ) );
         request.addParameter( Parameters.STYLE_ID, Integer.toString( style.getId( ) ) );
         request.addParameter( SecurityTokenService.PARAMETER_TOKEN,
-                SecurityTokenService.getInstance( ).getToken( request, "jsp/admin/style/DoRemoveStyleSheet.jsp" ) + "b" );
+                _securityTokenService.getToken( request, "jsp/admin/style/DoRemoveStyleSheet.jsp" ) + "b" );
 
         try
         {
@@ -435,7 +447,7 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
             assertEquals( stylesheet.getId( ), stored.getId( ) );
         }
     }
-
+    @Test
     public void testDoRemoveStyleSheetNoToken( ) throws AccessDeniedException
     {
         MockHttpServletRequest request = new MockHttpServletRequest( );
