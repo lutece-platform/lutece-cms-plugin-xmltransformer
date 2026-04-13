@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2025, City of Paris
+ * Copyright (c) 2002-2022, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,8 @@
  */
 package fr.paris.lutece.portal.business.style;
 
+import org.junit.jupiter.api.Test;
+
 import fr.paris.lutece.test.LuteceTestCase;
 
 public class StyleTest extends LuteceTestCase
@@ -48,6 +50,7 @@ public class StyleTest extends LuteceTestCase
     private final static String PORTLETTYPENAME1 = "PortletTypeName 1";
     private final static String PORTALCOMPONENTNAME1 = "PortalComponentName 1";
 
+    @Test
     public void testBusinessStyle( )
     {
         // Initialize an object

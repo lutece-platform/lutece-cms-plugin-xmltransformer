@@ -36,8 +36,11 @@ package fr.paris.lutece.portal.service.portlet;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Specializes;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 
 import fr.paris.lutece.portal.business.portlet.Portlet;
 import fr.paris.lutece.portal.business.style.ModeHome;
@@ -46,14 +49,16 @@ import fr.paris.lutece.portal.service.html.XmlTransformerService;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.page.PortletCacheService;
 
+@ApplicationScoped
+@Specializes
 public class PortletContentXslService extends PortletContentService
 {
 
-    @Inject
-    public PortletContentXslService( PortletCacheService portletCacheService, ICacheKeyService portletCacheKeyService )
-    {
-        super( portletCacheService, portletCacheKeyService );
-    }
+//    @Inject
+//    public PortletContentXslService( PortletCacheService portletCacheService, ICacheKeyService portletCacheKeyService )
+//    {
+//        super( portletCacheService, portletCacheKeyService );
+//    }
 
     private static final String XSL_UNIQUE_PREFIX = "page-";
     

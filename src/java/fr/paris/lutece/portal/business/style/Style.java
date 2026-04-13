@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2025, City of Paris
+ * Copyright (c) 2002-2022, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,16 +33,30 @@
  */
 package fr.paris.lutece.portal.business.style;
 
+import java.io.Serializable;
+
+import fr.paris.lutece.portal.web.constants.Messages;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+
 /**
  * This class represents style business objects
  */
-public class Style
+public class Style implements Serializable
 {
+    private static final long serialVersionUID = 1L;
     private static final String EMPTY_STRING = "";
+
+    @Positive( message = "#i18n{portal.style.message.createStyle.InvalidIdFormat}")
     private int _nId;
+
     private int _nPortalComponentId;
-    private String _strPortletTypeId;
+
+    private String _strPortletTypeId="";
+
+    @NotBlank( message = "#i18n{"+Messages.MANDATORY_FIELDS +"}")
     private String _strDescription;
+    
     private String _strPortletTypeName;
     private String _strPortalComponentName;
 
