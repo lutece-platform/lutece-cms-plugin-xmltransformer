@@ -107,13 +107,13 @@ public class StylesJspBean extends AdminFeaturesPageJspBean
     private static final String JSP_MANAGE_STYLESHEETS = "jsp/admin/style/ManageStyles.jsp";
 
     // Message keys
-    private static final String MESSAGE_CANT_DELETE_STYLE_PORTLETS = "portal.style.message.cannotDeleteStylePorlets";
+    private static final String MESSAGE_CANT_DELETE_STYLE_PORTLETS = "xmltransformer.message.cannotDeleteStylePorlets";
 
-    private static final String MESSAGE_CONFIRM_DELETE_STYLE = "portal.style.message.confirmDeleteStyle";
-    private static final String MESSAGE_CREATE_STYLE_INVALID_FORMAT_ID = "portal.style.message.createStyle.InvalidIdFormat";
-    private static final String MESSAGE_CREATE_STYLE_ID_ALREADY_EXISTS = "portal.style.message.createStyle.idAlreadyExists";
-    private static final String MESSAGE_CREATE_STYLE_COMPONENT_EXISTS = "portal.style.message.createStyle.componentHasAlreadyAStyle";
-    private static final String MESSAGE_CONFIRM_DELETE_STYLESHEET = "portal.style.message.stylesheetConfirmDelete";
+    private static final String MESSAGE_CONFIRM_DELETE_STYLE = "xmltransformer.message.confirmDeleteStyle";
+    private static final String MESSAGE_CREATE_STYLE_INVALID_FORMAT_ID = "xmltransformer.message.createStyle.InvalidIdFormat";
+    private static final String MESSAGE_CREATE_STYLE_ID_ALREADY_EXISTS = "xmltransformer.message.createStyle.idAlreadyExists";
+    private static final String MESSAGE_CREATE_STYLE_COMPONENT_EXISTS = "xmltransformer.message.createStyle.componentHasAlreadyAStyle";
+    private static final String MESSAGE_CONFIRM_DELETE_STYLESHEET = "xmltransformer.message.stylesheetConfirmDelete";
     private int _nItemsPerPage;
     private String _strCurrentPageIndex;
 
