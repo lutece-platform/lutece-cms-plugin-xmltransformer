@@ -47,7 +47,7 @@ public class Style implements Serializable
     private static final long serialVersionUID = 1L;
     private static final String EMPTY_STRING = "";
 
-    @Positive( message = "#i18n{portal.style.message.createStyle.InvalidIdFormat}")
+    @Positive( message = "#i18n{xmltransformer.message.createStyle.InvalidIdFormat}")
     private int _nId;
 
     private int _nPortalComponentId;
