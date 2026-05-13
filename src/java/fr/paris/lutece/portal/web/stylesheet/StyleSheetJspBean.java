@@ -121,10 +121,10 @@ public class StyleSheetJspBean extends AdminFeaturesPageJspBean
     // Properties
     private static final String PROPERTY_PATH_XSL = "path.stylesheet";
     private static final String PROPERTY_STYLESHEETS_PER_PAGE = "paginator.stylesheet.itemsPerPage";
-    private static final String MESSAGE_STYLESHEET_ALREADY_EXISTS = "portal.style.message.stylesheetAlreadyExists";
-    private static final String MESSAGE_STYLESHEET_NOT_VALID = "portal.style.message.stylesheetNotValid";
-    private static final String MESSAGE_STYLESHEET_SECURITY_VIOLATION = "portal.style.message.stylesheetSecurityViolation";
-    private static final String MESSAGE_CONFIRM_DELETE_STYLESHEET = "portal.style.message.stylesheetConfirmDelete";
+    private static final String MESSAGE_STYLESHEET_ALREADY_EXISTS = "xmltransformer.message.stylesheetAlreadyExists";
+    private static final String MESSAGE_STYLESHEET_NOT_VALID = "xmltransformer.message.stylesheetNotValid";
+    private static final String MESSAGE_STYLESHEET_SECURITY_VIOLATION = "xmltransformer.message.stylesheetSecurityViolation";
+    private static final String MESSAGE_CONFIRM_DELETE_STYLESHEET = "xmltransformer.message.stylesheetConfirmDelete";
     private static final String LABEL_ALL = "portal.util.labelAll";
     private static final String JSP_DO_REMOVE_STYLESHEET = "jsp/admin/style/DoRemoveStyleSheet.jsp";
     private static final String JSP_REMOVE_STYLE = "RemoveStyle.jsp";
