@@ -12,7 +12,7 @@
                 <@input type='text' name='description' id='style_name' maxlength=100 />
             </@formGroup>
             <@formGroup labelKey='#i18n{xmltransformer.create_style.labelComponentType}' labelFor='portal_component' rows=2>
-                <#assign javascriptComboParams>onChange="javascript:if( document.create_style.portal_component.value == '0' ) {document.create_style.portlet_type.disabled=false;} else {document.create_style.portlet_type.disabled=true;}"</#assign>
+                <#assign javascriptComboParams = "onChange=\"javascript:if( document.create_style.portal_component.value == '0' ) {document.create_style.portlet_type.disabled=false;} else {document.create_style.portlet_type.disabled=true;}\"">
                 <@select name='portalComponentId' default_value='0' items=portal_component_list params='${javascriptComboParams}' />
             </@formGroup>
             <@formGroup labelKey='#i18n{xmltransformer.create_style.labelPortletType}' labelFor='portlet_type' rows=2>
