@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><plug-in>
     <name>xmltransformer</name>
     <class>fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation</class>
-    <version>2.0.1-SNAPSHOT</version>
+    <version>2.0.2-SNAPSHOT</version>
     <documentation/>
     <installation/>
     <changes/>
@@ -21,22 +21,22 @@
     <!-- Admin features parameters -->
     <admin-features>
         <admin-feature>
-            <feature-id>CORE_STYLES_MANAGEMENT</feature-id>
+            <feature-id>XMLTRANSFORMER_STYLES_MANAGEMENT</feature-id>
             <feature-title>xmltransformer.adminFeature.styles_management.name</feature-title>
             <feature-description>xmltransformer.adminFeature.styles_management.description</feature-description>
             <feature-level>1</feature-level>
             <feature-url>jsp/admin/style/ManageStyles.jsp</feature-url>
             <feature-group>STYLE</feature-group>
-            <feature-icon-url>ti ti-brush</feature-icon-url>
+            <icon-url>ti ti-brush</icon-url>
         </admin-feature>
         <admin-feature>
-            <feature-id>CORE_STYLESHEET_MANAGEMENT</feature-id>
+            <feature-id>XMLTRANSFORMER_STYLESHEET_MANAGEMENT</feature-id>
             <feature-title>xmltransformer.adminFeature.stylesheet_management.name</feature-title>
             <feature-description>xmltransformer.adminFeature.stylesheet_management.description</feature-description>
             <feature-level>1</feature-level>
             <feature-url>jsp/admin/style/ManageStyleSheets.jsp</feature-url>
             <feature-group>STYLE</feature-group>
-            <feature-icon-url>ti ti-file-code</feature-icon-url>
+            <icon-url>ti ti-file-code</icon-url>
         </admin-feature>
     </admin-features>
 

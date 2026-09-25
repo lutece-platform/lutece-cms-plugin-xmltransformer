@@ -75,7 +75,7 @@ public class StylesJspBeanTest extends LuteceTestCase
     protected void setUp( ) throws Exception
     {
         style = new Style( );
-        int nId = StyleHome.getStylesList( ).stream( ).map( Style::getId ).max( Integer::compare ).get( ) + 1;
+        int nId = StyleHome.getStylesList( ).stream( ).map( Style::getId ).max( Integer::compare ).orElse( 0 ) + 1;
         style.setId( nId );
         style.setDescription( getRandomName( ) );
         style.setPortalComponentId( 2 );
@@ -133,7 +133,7 @@ public class StylesJspBeanTest extends LuteceTestCase
         AdminUserUtils.registerAdminUserWithRight( request, new AdminUser( ), StylesJspBean.RIGHT_MANAGE_STYLE );       
         instance.init( request, StylesJspBean.RIGHT_MANAGE_STYLE );        	
 
-        int nId = StyleHome.getStylesList( ).stream( ).map( Style::getId ).max( Integer::compare ).get( ) + 1;
+        int nId = StyleHome.getStylesList( ).stream( ).map( Style::getId ).max( Integer::compare ).orElse( 0 ) + 1;
         request.addParameter( "id", Integer.toString( nId ) );
         String name = getRandomName( );
         request.addParameter( "description", name );
@@ -228,11 +228,19 @@ public class StylesJspBeanTest extends LuteceTestCase
             instance.init( request, StylesJspBean.RIGHT_MANAGE_STYLE );        	
             request.addParameter( "id", Integer.toString( style.getId( ) ) );
             request.addParameter( "view", "getConfirmRemoveStyle" );
-            instance.processController(request,  new MockHttpServletResponse( ));
-            AdminMessage message = AdminMessageService.getMessage( request );
-            assertNotNull( message );
-            assertTrue( message.getRequestParameters( ).containsKey( Parameters.STYLESHEET_ID ) );
-            assertEquals( Integer.toString( stylesheet.getId( ) ), message.getRequestParameters( ).get( Parameters.STYLESHEET_ID ) );
+            String [ ] location = new String [ 1 ];
+            instance.processController( request, new MockHttpServletResponse( )
+            {
+                @Override
+                public void sendRedirect( String strLocation )
+                {
+                    location [0] = strLocation;
+                }
+            } );
+            assertNotNull( location [0] );
+            assertTrue( location [0].contains( "ManageStyleSheets.jsp?view=confirmRemoveStyleSheet" ), location [0] );
+            assertTrue( location [0].contains( Parameters.STYLESHEET_ID + "=" + stylesheet.getId( ) ), location [0] );
+            assertTrue( location [0].contains( Parameters.STYLE_ID + "=" + style.getId( ) ), location [0] );
         }
         finally
         {
