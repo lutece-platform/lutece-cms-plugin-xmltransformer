@@ -56,7 +56,6 @@ import fr.paris.lutece.portal.business.stylesheet.StyleSheet;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
-import fr.paris.lutece.portal.service.security.SecurityTokenService;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
 import fr.paris.lutece.portal.util.mvc.admin.MVCAdminJspBean;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
@@ -64,7 +63,6 @@ import fr.paris.lutece.portal.util.mvc.binding.BindingResult;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.ModelAttribute;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.RequestParam;
-import fr.paris.lutece.portal.util.mvc.commons.annotations.ResponseBody;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.util.mvc.utils.MVCUtils;
 import fr.paris.lutece.portal.web.cdi.mvc.Models;
@@ -72,6 +70,7 @@ import fr.paris.lutece.portal.web.constants.Parameters;
 import fr.paris.lutece.portal.web.util.IPager;
 import fr.paris.lutece.portal.web.util.Pager;
 import fr.paris.lutece.util.html.HtmlTemplate;
+import fr.paris.lutece.util.url.UrlItem;
 import fr.paris.lutece.util.sort.AttributeComparator;
 
 /**
@@ -79,7 +78,7 @@ import fr.paris.lutece.util.sort.AttributeComparator;
  */
 @RequestScoped
 @Named
-@Controller( controllerJsp = "ManageStyles.jsp", controllerPath = "jsp/admin/style/", right = "CORE_STYLES_MANAGEMENT", securityTokenEnabled=true )
+@Controller( controllerJsp = "ManageStyles.jsp", controllerPath = "jsp/admin/style/", right = StylesJspBean.RIGHT_MANAGE_STYLE, securityTokenEnabled=true )
 public class StylesJspBean extends MVCAdminJspBean
 {
     // ////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +88,7 @@ public class StylesJspBean extends MVCAdminJspBean
     /**
      * Right to manage styles
      */
-    public static final String RIGHT_MANAGE_STYLE = "CORE_STYLES_MANAGEMENT";
+    public static final String RIGHT_MANAGE_STYLE = "XMLTRANSFORMER_STYLES_MANAGEMENT";
 
     /**
      * Serial version UID
@@ -103,7 +102,6 @@ public class StylesJspBean extends MVCAdminJspBean
     private static final String VIEW_CONFIRM_REMOVE_STYLE = "getConfirmRemoveStyle";
     
     // Actions
-    private static final String ACTION_GET_STYLE_ITEMS = "getStyleItems";
     private static final String ACTION_CREATE_STYLE = "createStyle";
     private static final String ACTION_MODIFY_STYLE = "modifyStyle";
     private static final String ACTION_REMOVE_STYLE = "removeStyle";
@@ -134,7 +132,8 @@ public class StylesJspBean extends MVCAdminJspBean
 
     // Jsp Definition
     private static final String JSP_DO_REMOVE_STYLE = "jsp/admin/style/ManageStyles.jsp";
-    private static final String JSP_DO_REMOVE_STYLESHEET = "jsp/admin/style/DoRemoveStyleSheet.jsp";
+    private static final String JSP_MANAGE_STYLESHEET_FILES = "ManageStyleSheets.jsp";
+    private static final String VIEW_CONFIRM_REMOVE_STYLESHEET = "confirmRemoveStyleSheet";
     private static final String JSP_MANAGE_STYLESHEETS = "jsp/admin/style/ManageStyles.jsp";
 
     // Message keys
@@ -144,7 +143,6 @@ public class StylesJspBean extends MVCAdminJspBean
     private static final String MESSAGE_CREATE_STYLE_INVALID_FORMAT_ID = "xmltransformer.message.createStyle.InvalidIdFormat";
     private static final String MESSAGE_CREATE_STYLE_ID_ALREADY_EXISTS = "xmltransformer.message.createStyle.idAlreadyExists";
     private static final String MESSAGE_CREATE_STYLE_COMPONENT_EXISTS = "xmltransformer.message.createStyle.componentHasAlreadyAStyle";
-    private static final String MESSAGE_CONFIRM_DELETE_STYLESHEET = "xmltransformer.message.stylesheetConfirmDelete";
 
     // Infos
     private static final String INFO_STYLE_CREATED = "xmltransformer.info.style.created";
@@ -201,18 +199,6 @@ public class StylesJspBean extends MVCAdminJspBean
         return getAdminPage( template.getHtml( ) );
     }
 
-    /**
-     * Retrieves a paginated list of style items for the specified page number.
-     *
-     * @param numPage The page number to retrieve.
-     * @return A list of style items for the specified page.
-     */
-    @Action( value = ACTION_GET_STYLE_ITEMS )
-	@ResponseBody
-    public List<Style> getStyleItems( @RequestParam("page") int numPage )
-    {
-    	return pager.getPaginator().get().getPageItems(numPage);
-    }
     /**
      * Returns the create form of a new style
      * 
@@ -353,21 +339,12 @@ public class StylesJspBean extends MVCAdminJspBean
 
         if ( CollectionUtils.isNotEmpty( listStyleSheets ) )
         {
-            for ( StyleSheet styleSheet : listStyleSheets )
-            {
-                Object [ ] args = {
-                        styleSheet.getDescription( )
-                };
+            UrlItem url = new UrlItem( JSP_MANAGE_STYLESHEET_FILES );
+            url.addParameter( MVCUtils.PARAMETER_VIEW, VIEW_CONFIRM_REMOVE_STYLESHEET );
+            url.addParameter( Parameters.STYLESHEET_ID, listStyleSheets.iterator( ).next( ).getId( ) );
+            url.addParameter( Parameters.STYLE_ID, nId );
 
-                Map<String, Object> parameters = new HashMap<>( );
-                parameters.put( Parameters.STYLESHEET_ID, Integer.toString( styleSheet.getId( ) ) );
-                parameters.put( Parameters.STYLE_ID, nId );
-                parameters.put( SecurityTokenService.PARAMETER_TOKEN, getSecurityTokenService( ).getToken( request, JSP_DO_REMOVE_STYLESHEET ) );
-
-                String strMessageUrl= AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_DELETE_STYLESHEET, args, null, JSP_DO_REMOVE_STYLESHEET, null,
-                        AdminMessage.TYPE_CONFIRMATION, parameters, JSP_MANAGE_STYLESHEETS );        
-                return redirect( request, strMessageUrl );
-            }
+            return redirect( request, url.getUrl( ) );
         }
 
         Map<String, Object> parameters = new HashMap<>( );

@@ -1,34 +1,36 @@
 <@pageContainer>
     <@pageColumn>
-        <@pageHeader title='#i18n{xmltransformer.create_style.title}'/>
-        <@tform method='post' id="create-style-form" name='create_style' action='jsp/admin/style/ManageStyles.jsp'>
-            <@messages errors=errors />
+        <@pageHeader title='#i18n{xmltransformer.create_style.title}'>
+            <@aButton href='jsp/admin/style/ManageStyles.jsp' buttonIcon='arrow-left' title='#i18n{portal.util.labelBack}' color='light' hideTitle=['xs'] />
+        </@pageHeader>
+        <@tform method='post' name='create_style' action='jsp/admin/style/ManageStyles.jsp' boxed=true>
+            <@messages errors=errors![] />
             <@input type='hidden' name='action' value='createStyle' />
-            
             <@formGroup labelKey='#i18n{xmltransformer.create_style.labelId}' labelFor='style_id' mandatory=true rows=2>
-                <@input type='number' max=2147483647 name='id' id='style_id' maxlength=10 />
+                <@input type='number' max=2147483647 name='id' id='style_id' maxlength=10 mandatory=true />
             </@formGroup>
             <@formGroup labelKey='#i18n{xmltransformer.create_style.labelName}' labelFor='style_name' mandatory=true rows=2>
-                <@input type='text' name='description' id='style_name' maxlength=100 />
+                <@input type='text' name='description' id='style_name' maxlength=100 mandatory=true />
             </@formGroup>
-            <@formGroup labelKey='#i18n{xmltransformer.create_style.labelComponentType}' labelFor='portal_component' rows=2>
-                <#assign javascriptComboParams>onChange="javascript:if( document.create_style.portal_component.value == '0' ) {document.create_style.portlet_type.disabled=false;} else {document.create_style.portlet_type.disabled=true;}"</#assign>
-                <@select name='portalComponentId' default_value='0' items=portal_component_list params='${javascriptComboParams}' />
+            <@formGroup labelKey='#i18n{xmltransformer.create_style.labelComponentType}' labelFor='portalComponentId' rows=2>
+                <@select name='portalComponentId' default_value='0' items=portal_component_list />
             </@formGroup>
-            <@formGroup labelKey='#i18n{xmltransformer.create_style.labelPortletType}' labelFor='portlet_type' rows=2>
+            <@formGroup labelKey='#i18n{xmltransformer.create_style.labelPortletType}' labelFor='portletTypeId' rows=2>
                 <@select name='portletTypeId' default_value='0' items=portlet_type_list />
             </@formGroup>
             <@formGroup rows=2>
-                <@button type='submit' buttonIcon='plus' title='#i18n{xmltransformer.create_style.buttonCreate}' color='primary' />
-                <@aButton href='jsp/admin/style/ManageStyles.jsp' buttonIcon='times' title='#i18n{portal.admin.message.buttonCancel}' color='secondary' />
+                <@button type='submit' buttonIcon='plus' title='#i18n{xmltransformer.create_style.buttonCreate}' hideTitle=['xs'] color='primary' />
+                <@aButton href='jsp/admin/style/ManageStyles.jsp' buttonIcon='x' title='#i18n{portal.util.labelCancel}' hideTitle=['xs'] color='light' />
             </@formGroup>
         </@tform>
     </@pageColumn>
 </@pageContainer>
 <script>
-if( document.create_style.portal_component.value == '0' ) {
-    document.create_style.portlet_type.disabled=false;
-} else {
-    document.create_style.portlet_type.disabled=true;
+const portalComponent = document.getElementById( 'portalComponentId' );
+const portletType = document.getElementById( 'portletTypeId' );
+if ( portalComponent && portletType ) {
+    const togglePortletType = ( ) => { portletType.disabled = portalComponent.value !== '0'; };
+    portalComponent.addEventListener( 'change', togglePortletType );
+    togglePortletType( );
 }
 </script>

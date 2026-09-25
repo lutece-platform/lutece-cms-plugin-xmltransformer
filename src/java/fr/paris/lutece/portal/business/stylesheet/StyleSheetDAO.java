@@ -288,7 +288,6 @@ public final class StyleSheetDAO implements IStyleSheetDAO
 
             if ( !daoUtil.next( ) )
             {
-                daoUtil.free( );
                 throw new AppException( DAOUtil.MSG_EXCEPTION_SELECT_ERROR + nModeId + " StyleId " + nStyleId );
             }
 
@@ -317,7 +316,6 @@ public final class StyleSheetDAO implements IStyleSheetDAO
 
             if ( !daoUtil.next( ) )
             {
-                daoUtil.free( );
                 throw new AppException( DAOUtil.MSG_EXCEPTION_SELECT_ERROR + nIdStylesheet );
             }
 
