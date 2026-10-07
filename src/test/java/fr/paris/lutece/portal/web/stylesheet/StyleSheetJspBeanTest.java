@@ -132,7 +132,7 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
     @AfterEach
     protected void tearDown( )
     {
-        StyleSheetHome.getStyleSheetList( -1 ).stream( ).filter( s -> s.getStyleId( ) == _style.getId( ) ).forEach( s -> StyleSheetHome.remove( s.getId( ) ) );
+        StyleHome.getStyleSheetList( _style.getId( ) ).forEach( s -> StyleSheetHome.remove( s.getId( ) ) );
         StyleHome.remove( _style.getId( ) );
     }
 
