@@ -143,6 +143,7 @@ public class StylesJspBean extends MVCAdminJspBean
     private static final String MESSAGE_CREATE_STYLE_INVALID_FORMAT_ID = "xmltransformer.message.createStyle.InvalidIdFormat";
     private static final String MESSAGE_CREATE_STYLE_ID_ALREADY_EXISTS = "xmltransformer.message.createStyle.idAlreadyExists";
     private static final String MESSAGE_CREATE_STYLE_COMPONENT_EXISTS = "xmltransformer.message.createStyle.componentHasAlreadyAStyle";
+    private static final String MESSAGE_STYLE_NOT_FOUND = "xmltransformer.message.styleNotFound";
 
     // Infos
     private static final String INFO_STYLE_CREATED = "xmltransformer.info.style.created";
@@ -266,12 +267,21 @@ public class StylesJspBean extends MVCAdminJspBean
      *            the identifier of the style to modify
      * @param model
      *            the model used to pass attributes to the view
+     * @param request
+     *            the HTTP request
      * @return the HTML code of the update form
      */
     @View( value = VIEW_MODIFY_STYLE, securityTokenAction = ACTION_MODIFY_STYLE  )
-    public String getModifyStyle(  @RequestParam(STYLE_ID) int nStyleId, Models model )
+    public String getModifyStyle(  @RequestParam(STYLE_ID) int nStyleId, Models model, HttpServletRequest request )
     {
-        model.put( MARK_STYLE, StyleHome.findByPrimaryKey( nStyleId ) );
+        Style style = StyleHome.findByPrimaryKey( nStyleId );
+
+        if ( style == null )
+        {
+            return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_STYLE_NOT_FOUND, JSP_MANAGE_STYLESHEETS, AdminMessage.TYPE_STOP ) );
+        }
+
+        model.put( MARK_STYLE, style );
         model.put( MARK_PORTLET_TYPE_LIST, PortletTypeHome.getPortletsTypesList( getLocale( ) ) );
         model.put( MARK_PORTAL_COMPONENT_LIST, StyleHome.getPortalComponentList( ) );
 
@@ -301,9 +311,15 @@ public class StylesJspBean extends MVCAdminJspBean
     {
     	if(bindingResult.isFailed( )) {
         	model.put(MVCUtils.MARK_ERRORS, bindingResult.getAllErrors( ));
-        	return getModifyStyle( nStyleId, model);
+        	return getModifyStyle( nStyleId, model, request );
         }
         Style styleOld = StyleHome.findByPrimaryKey( nStyleId );
+
+        if ( styleOld == null )
+        {
+            return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_STYLE_NOT_FOUND, JSP_MANAGE_STYLESHEETS, AdminMessage.TYPE_STOP ) );
+        }
+
         int nPortalComponentOld = styleOld.getPortalComponentId( );
 
         if ( StyleHome.checkStylePortalComponent( style.getPortalComponentId() ) && ( style.getPortalComponentId() != PORTAL_COMPONENT_ID_PORTLET )
