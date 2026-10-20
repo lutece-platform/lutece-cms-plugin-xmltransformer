@@ -35,6 +35,7 @@ package fr.paris.lutece.portal.web.style;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Locale;
 import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
@@ -48,6 +49,7 @@ import fr.paris.lutece.portal.business.stylesheet.StyleSheet;
 import fr.paris.lutece.portal.business.stylesheet.StyleSheetHome;
 import fr.paris.lutece.portal.business.user.AdminUser;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
+import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.test.AdminUserUtils;
@@ -162,8 +164,26 @@ public class StylesJspBeanTest extends LuteceTestCase
     public void testGetModifyStyle( ) throws AccessDeniedException
     {
         int nStyleId = style.getId( );
-        String html = instance.getModifyStyle(nStyleId , models );
+        String html = instance.getModifyStyle(nStyleId , models, new MockHttpServletRequest( ) );
         assertNotNull( html );
+    }
+
+    @Test
+    public void testGetModifyStyleUnknownId( ) throws AccessDeniedException
+    {
+        int nUnknownId = style.getId( ) + 1000;
+        MockHttpServletRequest request = new MockHttpServletRequest( );
+        AdminUserUtils.registerAdminUserWithRight( request, new AdminUser( ), StylesJspBean.RIGHT_MANAGE_STYLE );
+        instance.init( request, StylesJspBean.RIGHT_MANAGE_STYLE );
+        request.addParameter( "id", Integer.toString( nUnknownId ) );
+        request.addParameter( "view", "getModifyStyle" );
+
+        instance.processController( request, new MockHttpServletResponse( ) );
+
+        AdminMessage message = AdminMessageService.getMessage( request );
+        assertNotNull( message );
+        assertEquals( AdminMessage.TYPE_STOP, message.getType( ) );
+        assertMessageStyleNotFound( message );
     }
 
     /**
@@ -194,6 +214,35 @@ public class StylesJspBeanTest extends LuteceTestCase
         assertEquals( style.getId( ), stored.getId( ) );
         assertEquals( style.getDescription( ) + "_mod", stored.getDescription( ) );
     }
+    @Test
+    public void testDoModifyStyleUnknownId( ) throws AccessDeniedException
+    {
+        int nUnknownId = style.getId( ) + 1000;
+        MockHttpServletRequest request = new MockHttpServletRequest( );
+        AdminUserUtils.registerAdminUserWithRight( request, new AdminUser( ), StylesJspBean.RIGHT_MANAGE_STYLE );
+        instance.init( request, StylesJspBean.RIGHT_MANAGE_STYLE );
+
+        request.addParameter( "id", Integer.toString( nUnknownId ) );
+        request.addParameter( "portalComponentId", Integer.toString( style.getPortalComponentId( ) ) );
+        request.addParameter( "description", getRandomName( ) );
+        request.addParameter( "action", "modifyStyle" );
+
+        instance.processController( request, new MockHttpServletResponse( ) );
+
+        AdminMessage message = AdminMessageService.getMessage( request );
+        assertNotNull( message );
+        assertEquals( AdminMessage.TYPE_STOP, message.getType( ) );
+        assertMessageStyleNotFound( message );
+        assertNull( StyleHome.findByPrimaryKey( nUnknownId ) );
+    }
+
+    private void assertMessageStyleNotFound( AdminMessage message )
+    {
+        String strExpected = I18nService.getLocalizedString( "xmltransformer.message.styleNotFound", Locale.ENGLISH );
+        assertTrue( StringUtils.isNotBlank( strExpected ) );
+        assertEquals( strExpected, message.getText( Locale.ENGLISH ) );
+    }
+
     /**
      * Test of getConfirmRemoveStyle method, of class fr.paris.lutece.portal.web.style.StylesJspBean.
      */
