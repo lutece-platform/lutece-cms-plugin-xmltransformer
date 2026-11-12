@@ -256,6 +256,7 @@ public class StylesJspBean extends MVCAdminJspBean
         }
 
         StyleHome.create( style );
+        addInfo( INFO_STYLE_CREATED, getLocale( ) );
 
         return redirectView(request, VIEW_MANAGE_STYLES );
     }
@@ -329,6 +330,7 @@ public class StylesJspBean extends MVCAdminJspBean
             return redirect( request, strMessageUrl );
         }
         StyleHome.update( style );
+        addInfo( INFO_STYLE_UPDATED, getLocale( ) );
         return redirectView(request, VIEW_MANAGE_STYLES );
     }
 
@@ -384,6 +386,7 @@ public class StylesJspBean extends MVCAdminJspBean
     public String doRemoveStyle( @RequestParam(STYLE_ID) int nId, HttpServletRequest request )
     {
         StyleHome.remove( nId );
+        addInfo( INFO_STYLE_REMOVED, getLocale( ) );
         return redirectView(request, VIEW_MANAGE_STYLES );
     }
 }
