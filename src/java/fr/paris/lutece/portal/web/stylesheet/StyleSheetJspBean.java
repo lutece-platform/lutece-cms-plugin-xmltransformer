@@ -72,7 +72,6 @@ import fr.paris.lutece.portal.web.constants.Parameters;
 import fr.paris.lutece.portal.web.util.IPager;
 import fr.paris.lutece.portal.web.util.Pager;
 import fr.paris.lutece.util.ReferenceList;
-import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.sort.AttributeComparator;
 import fr.paris.lutece.util.url.UrlItem;
 import jakarta.enterprise.context.RequestScoped;
@@ -106,14 +105,10 @@ public class StyleSheetJspBean extends MVCAdminJspBean
     private static final String MARK_STYLESHEET_LIST = "stylesheet_list";
     private static final String MARK_STYLE_LIST = "style_list";
     private static final String MARK_STYLESHEET = "stylesheet";
-    private static final String MARK_PORTAL_COMPONENT_NAME = "portal_component_name";
-    private static final String MARK_PORTLET_TYPE_NAME = "portlet_type_name";
-    private static final String MARK_STYLE_DESCRIPTION = "style_description";
 
     private static final String TEMPLATE_MANAGE_STYLESHEETS = "admin/stylesheet/manage_stylesheets.html";
     private static final String TEMPLATE_CREATE_STYLESHEET = "admin/stylesheet/create_stylesheet.html";
     private static final String TEMPLATE_MODIFY_STYLESHEET = "admin/stylesheet/modify_stylesheet.html";
-    private static final String TEMPLATE_STYLE_SELECT_OPTION = "admin/stylesheet/style_select_option.html";
 
     private static final String PROPERTY_STYLESHEETS_PER_PAGE = "paginator.stylesheet.itemsPerPage";
     private static final String MESSAGE_STYLESHEET_ALREADY_EXISTS = "xmltransformer.message.stylesheetAlreadyExists";
@@ -341,13 +336,15 @@ public class StyleSheetJspBean extends MVCAdminJspBean
 
         for ( Style style : StyleHome.getStylesList( ) )
         {
-            Map<String, Object> model = new HashMap<>( );
-            model.put( MARK_PORTAL_COMPONENT_NAME, PortalComponentHome.findByPrimaryKey( style.getPortalComponentId( ) ).getName( ) );
+            // Plain text: the select macro escapes the label
+            StringBuilder sbLabel = new StringBuilder( StringUtils.defaultString( PortalComponentHome.findByPrimaryKey( style.getPortalComponentId( ) ).getName( ) ) );
             PortletType portletType = PortletTypeHome.findByPrimaryKey( style.getPortletTypeId( ) );
-            model.put( MARK_PORTLET_TYPE_NAME, ( portletType != null ) ? I18nService.getLocalizedString( portletType.getNameKey( ), getLocale( ) ) : "" );
-            model.put( MARK_STYLE_DESCRIPTION, style.getDescription( ) );
-            HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_STYLE_SELECT_OPTION, getLocale( ), model );
-            listStyles.addItem( style.getId( ), template.getHtml( ) );
+            if ( portletType != null )
+            {
+                sbLabel.append( ' ' ).append( I18nService.getLocalizedString( portletType.getNameKey( ), getLocale( ) ) );
+            }
+            sbLabel.append( " - " ).append( StringUtils.defaultString( style.getDescription( ) ) );
+            listStyles.addItem( style.getId( ), sbLabel.toString( ) );
         }
 
         return listStyles;

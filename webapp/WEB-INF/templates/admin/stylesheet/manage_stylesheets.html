@@ -5,7 +5,7 @@
             <@tform method='post' type='inline'>
                 <@formGroup labelFor='search_stylesheet' labelKey='#i18n{portal.system.manage_plugins.buttonFilter}' hideLabel=['all'] formStyle='inline'>
                     <@inputGroup>
-                        <@input type='text' name='search_stylesheet' id='search_stylesheet' placeHolder='#i18n{portal.system.manage_plugins.buttonFilter}' params='autocomplete="off" addons' />
+                        <@input type='text' name='search_stylesheet' id='search_stylesheet' placeHolder='#i18n{portal.system.manage_plugins.buttonFilter}' autoComplete="off" />
                         <@button color='primary' title='#i18n{portal.system.manage_plugins.buttonFilter}' buttonIcon='search' hideTitle=['all'] />
                     </@inputGroup>
                 </@formGroup>
@@ -14,7 +14,7 @@
             <@tform method='get' type='inline' align='middle' action='jsp/admin/style/ManageStyleSheets.jsp'>
                 <@formGroup formStyle='inline' labelKey='#i18n{xmltransformer.manage_stylesheets.labelSortByMode}' labelFor='mode_id' hideLabel=['all'] groupStyle='addons'>
                     <@inputGroup>
-                        <@select name='mode_id' default_value='${mode_id}' items=mode_list params='addons' />
+                        <@select name='mode_id' default_value='${mode_id}' items=mode_list />
                         <@button type='submit' buttonIcon='filter' title='#i18n{portal.util.labelFilter}' hideTitle=['all'] color='primary' />
                     </@inputGroup>
                 </@formGroup>
@@ -27,10 +27,10 @@
             <#list stylesheet_list as stylesheet>
                 <@manageFeatureItem liClass='item-labels'>
                     <@manageFeatureItemColumn class='searchable'>
-                        #i18n{xmltransformer.manage_stylesheets.columnName} ${stylesheet.description?html}
+                        #i18n{xmltransformer.manage_stylesheets.columnName} ${stylesheet.description}
                     </@manageFeatureItemColumn>
                     <@manageFeatureItemColumn class='searchable'>
-                        #i18n{xmltransformer.manage_stylesheets.columnFilename} ${stylesheet.file?html}
+                        #i18n{xmltransformer.manage_stylesheets.columnFilename} ${stylesheet.file}
                     </@manageFeatureItemColumn>
                     <@manageFeatureItemColumn align='end'>
                         <@aButton href='jsp/admin/style/ManageStyleSheets.jsp?view=modifyStyleSheet&stylesheet_id=${stylesheet.id}' buttonIcon='edit' title='#i18n{portal.util.labelModify}' hideTitle=['all'] />

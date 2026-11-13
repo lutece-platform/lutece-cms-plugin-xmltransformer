@@ -7,7 +7,7 @@
             <@input type='hidden' name='action' value='modifyStyleSheet' />
             <@input type='hidden' name='stylesheet_id' value='${stylesheet.id}' />
             <@formGroup labelKey='#i18n{xmltransformer.modify_stylesheet.labelName}' labelFor='stylesheet_name' mandatory=true rows=2>
-                <@input type='text' name='stylesheet_name' id='stylesheet_name' value='${stylesheet.description?html}' maxlength=255 mandatory=true />
+                <@input type='text' name='stylesheet_name' id='stylesheet_name' value='${stylesheet.description}' maxlength=255 mandatory=true />
             </@formGroup>
             <@formGroup labelKey='#i18n{xmltransformer.modify_stylesheet.labelFilename}' labelFor='stylesheet_source' mandatory=true rows=2>
                 <@inputGroup>
