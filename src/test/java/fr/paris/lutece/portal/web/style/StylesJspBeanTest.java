@@ -332,5 +332,7 @@ public class StylesJspBeanTest extends LuteceTestCase
             assertFalse( strHtml.contains( "<b>name</b>" ) );
             assertFalse( strHtml.contains( "&amp;lt;" ) );
         }
+        // the row actions of the list are named after the style
+        assertTrue( instance.getStylesManagement( models, request ).contains( " junit &lt;b&gt;name&lt;/b&gt; &amp; co\"" ) );
     }
 }

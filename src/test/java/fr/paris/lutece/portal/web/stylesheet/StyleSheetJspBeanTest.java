@@ -368,6 +368,8 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
         String strHtml = _instance.getManageStyleSheets( _models, adminRequest( ) );
 
         assertTrue( strHtml.contains( MARKUP_NAME_ESCAPED ), strHtml );
+        // the row actions are named after the stylesheet
+        assertTrue( strHtml.contains( " " + MARKUP_NAME_ESCAPED + "\"" ), strHtml );
         assertFalse( strHtml.contains( MARKUP_NAME ) );
         assertFalse( strHtml.contains( "&amp;lt;" ) );
     }
