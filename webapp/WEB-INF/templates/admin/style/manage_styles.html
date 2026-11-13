@@ -5,7 +5,7 @@
             <@tform method='post' type='inline'>
                 <@formGroup labelFor='search_style' labelKey='#i18n{portal.system.manage_plugins.buttonFilter}' hideLabel=['all'] formStyle='inline'>
                     <@inputGroup>
-                        <@input type='text' name='search_style' id='search_style' placeHolder='#i18n{portal.system.manage_plugins.buttonFilter}' params='autocomplete="off" addons' />
+                        <@input type='text' name='search_style' id='search_style' placeHolder='#i18n{portal.system.manage_plugins.buttonFilter}' autoComplete="off" />
                         <@button color='primary' title='#i18n{portal.system.manage_plugins.buttonFilter}' buttonIcon='filter' hideTitle=['all'] />
                     </@inputGroup>
                 </@formGroup>
@@ -19,7 +19,7 @@
             <#list style_list?sort_by('id') as style>
                 <@manageFeatureItem liClass='item-labels'>
                     <@manageFeatureItemColumn class='searchable'>
-                        <@p>#i18n{xmltransformer.manage_styles.labelId}: <strong>${style.id}</strong> - #i18n{xmltransformer.manage_styles.labelName}: <strong>${style.description?html}</strong></@p>
+                        <@p>#i18n{xmltransformer.manage_styles.labelId}: <strong>${style.id}</strong> - #i18n{xmltransformer.manage_styles.labelName}: <strong>${style.description}</strong></@p>
                     </@manageFeatureItemColumn>
                     <@manageFeatureItemColumn class='searchable'>
                         <@p>#i18n{xmltransformer.manage_styles.labelComponentType}: <strong>${style.portalComponentName}</strong></@p>

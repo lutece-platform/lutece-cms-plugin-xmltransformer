@@ -310,4 +310,27 @@ public class StylesJspBeanTest extends LuteceTestCase
         instance.doRemoveStyle( style.getId( ), request );
         assertNull( StyleHome.findByPrimaryKey( style.getId( ) ) );
     }
+
+    /**
+     * The list and the modification form write the style name escaped once, as text.
+     *
+     * @throws AccessDeniedException
+     *             never with the right registered
+     */
+    @Test
+    public void testStyleNameWrittenAsText( ) throws AccessDeniedException
+    {
+        style.setDescription( "junit <b>name</b> & co" );
+        StyleHome.update( style );
+        MockHttpServletRequest request = new MockHttpServletRequest( );
+        AdminUserUtils.registerAdminUserWithRight( request, new AdminUser( ), StylesJspBean.RIGHT_MANAGE_STYLE );
+        instance.init( request, StylesJspBean.RIGHT_MANAGE_STYLE );
+
+        for ( String strHtml : new String [ ] { instance.getStylesManagement( models, request ), instance.getModifyStyle( style.getId( ), models, request ) } )
+        {
+            assertTrue( strHtml.contains( "junit &lt;b&gt;name&lt;/b&gt; &amp; co" ), strHtml );
+            assertFalse( strHtml.contains( "<b>name</b>" ) );
+            assertFalse( strHtml.contains( "&amp;lt;" ) );
+        }
+    }
 }

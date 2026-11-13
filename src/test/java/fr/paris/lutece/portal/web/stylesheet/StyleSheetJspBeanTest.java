@@ -70,6 +70,8 @@ import jakarta.inject.Inject;
  */
 public class StyleSheetJspBeanTest extends LuteceTestCase
 {
+    private static final String MARKUP_NAME = "junit <b>name</b> & co";
+    private static final String MARKUP_NAME_ESCAPED = "junit &lt;b&gt;name&lt;/b&gt; &amp; co";
     private static final String VALID_XSL = "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"/>";
 
     @Inject
@@ -350,5 +352,63 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
 
         assertNull( StyleSheetHome.findByPrimaryKey( _stylesheet.getId( ) ) );
         assertTrue( response.getLocation( ).contains( "view=getConfirmRemoveStyle&id=" + _style.getId( ) ), response.getLocation( ) );
+    }
+
+    /**
+     * The list view writes the name and the file of a stylesheet escaped once, as text.
+     *
+     * @throws AccessDeniedException
+     *             never with the right registered
+     */
+    @Test
+    public void testGetManageStyleSheetsWritesNamesAsText( ) throws AccessDeniedException
+    {
+        _stylesheet.setDescription( MARKUP_NAME );
+        StyleSheetHome.update( _stylesheet );
+        String strHtml = _instance.getManageStyleSheets( _models, adminRequest( ) );
+
+        assertTrue( strHtml.contains( MARKUP_NAME_ESCAPED ), strHtml );
+        assertFalse( strHtml.contains( MARKUP_NAME ) );
+        assertFalse( strHtml.contains( "&amp;lt;" ) );
+    }
+
+    /**
+     * The modification form writes the stylesheet name escaped once in its field.
+     *
+     * @throws AccessDeniedException
+     *             never with the right registered
+     */
+    @Test
+    public void testGetModifyStyleSheetWritesNameAsText( ) throws AccessDeniedException
+    {
+        _stylesheet.setDescription( MARKUP_NAME );
+        StyleSheetHome.update( _stylesheet );
+        MockHttpServletRequest request = adminRequest( );
+        request.addParameter( Parameters.STYLESHEET_ID, Integer.toString( _stylesheet.getId( ) ) );
+        String strHtml = _instance.getModifyStyleSheet( _models, request );
+
+        assertTrue( strHtml.contains( MARKUP_NAME_ESCAPED ), strHtml );
+        assertFalse( strHtml.contains( "&amp;lt;" ) );
+    }
+
+    /**
+     * The options of the style select are plain text: the select writes the style name escaped once, with no entity
+     * escaped twice.
+     *
+     * @throws AccessDeniedException
+     *             never with the right registered
+     */
+    @Test
+    public void testGetCreateStyleSheetWritesStyleLabelsAsText( ) throws AccessDeniedException
+    {
+        _style.setDescription( MARKUP_NAME );
+        StyleHome.update( _style );
+        assertTrue( _instance.getStyleList( ).stream( ).anyMatch( item -> item.getName( ).endsWith( " - " + MARKUP_NAME ) ) );
+
+        String strHtml = _instance.getCreateStyleSheet( _models, adminRequest( ) );
+
+        assertTrue( strHtml.contains( MARKUP_NAME_ESCAPED ), strHtml );
+        assertFalse( strHtml.contains( "&amp;lt;" ) );
+        assertFalse( strHtml.contains( "&amp;nbsp;" ) );
     }
 }
