@@ -13,7 +13,7 @@
                 <@inputGroup>
                     <@input type='file' name='stylesheet_source' id='stylesheet_source' mandatory=true />
                     <@inputGroupItem type='btn'>
-                        <@aButton href='servlet/plugins/xmltransformer/viewStyleSheetFile?stylesheet_id=${stylesheet.id}' buttonIcon='download' title='#i18n{xmltransformer.modify_stylesheet.buttonView}' color='info' hideTitle=['all'] />
+                        <@aButton href='servlet/plugins/xmltransformer/viewStyleSheetFile?stylesheet_id=${stylesheet.id}' buttonIcon='download' title='#i18n{xmltransformer.modify_stylesheet.buttonView}' color='info' hideTitle=['all'] params={'aria-label': '#i18n{xmltransformer.modify_stylesheet.buttonView} ' + stylesheet.file} />
                     </@inputGroupItem>
                 </@inputGroup>
             </@formGroup>

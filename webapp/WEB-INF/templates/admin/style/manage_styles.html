@@ -28,8 +28,8 @@
                         <#if style.portletTypeName !=''><@p>#i18n{xmltransformer.manage_styles.labelPortletType}: <strong>#i18n{${style.portletTypeName}}</strong></@p></#if>
                     </@manageFeatureItemColumn>
                     <@manageFeatureItemColumn align='end'>
-                        <@aButton href='jsp/admin/style/ManageStyles.jsp?view=getModifyStyle&id=${style.id}' buttonIcon='edit' title='#i18n{portal.util.labelModify}' hideTitle=['all'] />
-                        <@aButton href='jsp/admin/style/ManageStyles.jsp?view=getConfirmRemoveStyle&id=${style.id}' buttonIcon='trash' title='#i18n{portal.util.labelDelete}' hideTitle=['all'] color='danger' />
+                        <@aButton href='jsp/admin/style/ManageStyles.jsp?view=getModifyStyle&id=${style.id}' buttonIcon='edit' title='#i18n{portal.util.labelModify}' hideTitle=['all'] params={'aria-label': '#i18n{portal.util.labelModify} ' + style.description} />
+                        <@aButton href='jsp/admin/style/ManageStyles.jsp?view=getConfirmRemoveStyle&id=${style.id}' buttonIcon='trash' title='#i18n{portal.util.labelDelete}' hideTitle=['all'] color='danger' params={'aria-label': '#i18n{portal.util.labelDelete} ' + style.description} />
                     </@manageFeatureItemColumn>
                 </@manageFeatureItem>
             </#list>

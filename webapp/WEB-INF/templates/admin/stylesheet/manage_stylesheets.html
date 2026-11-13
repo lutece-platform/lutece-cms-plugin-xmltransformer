@@ -33,8 +33,8 @@
                         #i18n{xmltransformer.manage_stylesheets.columnFilename} ${stylesheet.file}
                     </@manageFeatureItemColumn>
                     <@manageFeatureItemColumn align='end'>
-                        <@aButton href='jsp/admin/style/ManageStyleSheets.jsp?view=modifyStyleSheet&stylesheet_id=${stylesheet.id}' buttonIcon='edit' title='#i18n{portal.util.labelModify}' hideTitle=['all'] />
-                        <@aButton href='jsp/admin/style/ManageStyleSheets.jsp?view=confirmRemoveStyleSheet&stylesheet_id=${stylesheet.id}' buttonIcon='trash' title='#i18n{portal.util.labelDelete}' hideTitle=['all'] color='danger' />
+                        <@aButton href='jsp/admin/style/ManageStyleSheets.jsp?view=modifyStyleSheet&stylesheet_id=${stylesheet.id}' buttonIcon='edit' title='#i18n{portal.util.labelModify}' hideTitle=['all'] params={'aria-label': '#i18n{portal.util.labelModify} ' + stylesheet.description} />
+                        <@aButton href='jsp/admin/style/ManageStyleSheets.jsp?view=confirmRemoveStyleSheet&stylesheet_id=${stylesheet.id}' buttonIcon='trash' title='#i18n{portal.util.labelDelete}' hideTitle=['all'] color='danger' params={'aria-label': '#i18n{portal.util.labelDelete} ' + stylesheet.description} />
                     </@manageFeatureItemColumn>
                 </@manageFeatureItem>
             </#list>
