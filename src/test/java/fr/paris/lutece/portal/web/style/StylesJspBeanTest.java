@@ -68,7 +68,7 @@ public class StylesJspBeanTest extends LuteceTestCase
         super.setUp( );
         instance = new StylesJspBean( );
         style = new Style( );
-        int nId = StyleHome.getStylesList( ).stream( ).map( Style::getId ).max( Integer::compare ).get( ) + 1;
+        int nId = StyleHome.getStylesList( ).stream( ).map( Style::getId ).max( Integer::compare ).orElse( 0 ) + 1;
         style.setId( nId );
         style.setDescription( getRandomName( ) );
         style.setPortalComponentId( 2 );
@@ -124,7 +124,7 @@ public class StylesJspBeanTest extends LuteceTestCase
     public void testDoCreateStyle( ) throws AccessDeniedException
     {
         MockHttpServletRequest request = new MockHttpServletRequest( );
-        int nId = StyleHome.getStylesList( ).stream( ).map( Style::getId ).max( Integer::compare ).get( ) + 1;
+        int nId = StyleHome.getStylesList( ).stream( ).map( Style::getId ).max( Integer::compare ).orElse( 0 ) + 1;
         request.addParameter( Parameters.STYLE_ID, Integer.toString( nId ) );
         String name = getRandomName( );
         request.addParameter( Parameters.STYLE_NAME, name );
@@ -149,7 +149,7 @@ public class StylesJspBeanTest extends LuteceTestCase
     public void testDoCreateStyleInvalidToken( ) throws AccessDeniedException
     {
         MockHttpServletRequest request = new MockHttpServletRequest( );
-        int nId = StyleHome.getStylesList( ).stream( ).map( Style::getId ).max( Integer::compare ).get( ) + 1;
+        int nId = StyleHome.getStylesList( ).stream( ).map( Style::getId ).max( Integer::compare ).orElse( 0 ) + 1;
         request.addParameter( Parameters.STYLE_ID, Integer.toString( nId ) );
         String name = getRandomName( );
         request.addParameter( Parameters.STYLE_NAME, name );
@@ -176,7 +176,7 @@ public class StylesJspBeanTest extends LuteceTestCase
     public void testDoCreateStyleNoToken( ) throws AccessDeniedException
     {
         MockHttpServletRequest request = new MockHttpServletRequest( );
-        int nId = StyleHome.getStylesList( ).stream( ).map( Style::getId ).max( Integer::compare ).get( ) + 1;
+        int nId = StyleHome.getStylesList( ).stream( ).map( Style::getId ).max( Integer::compare ).orElse( 0 ) + 1;
         request.addParameter( Parameters.STYLE_ID, Integer.toString( nId ) );
         String name = getRandomName( );
         request.addParameter( Parameters.STYLE_NAME, name );

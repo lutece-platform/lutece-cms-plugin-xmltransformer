@@ -78,7 +78,7 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
         super.setUp( );
         instance = new StyleSheetJspBean( );
         style = new Style( );
-        int nId = StyleHome.getStylesList( ).stream( ).map( Style::getId ).max( Integer::compare ).get( ) + 1;
+        int nId = StyleHome.getStylesList( ).stream( ).map( Style::getId ).max( Integer::compare ).orElse( 0 ) + 1;
         style.setId( nId );
         style.setDescription( getRandomName( ) );
         style.setPortalComponentId( 2 );
