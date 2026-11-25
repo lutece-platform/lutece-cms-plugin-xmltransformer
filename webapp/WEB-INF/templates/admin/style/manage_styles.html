@@ -34,7 +34,7 @@
                 </@manageFeatureItem>
             </#list>
             </@manageFeature>
-            <#if style_list?size gt 9><@paginationAdmin paginator=paginator combo=1 /></#if>
+            <#if paginator.itemsCount gt 9><@paginationAdmin paginator=paginator combo=1 /></#if>
         <#else>
             <@card>
                 <@empty title='#i18n{portal.util.labelNoItem}' iconName='brush-off' actionTitle='#i18n{xmltransformer.manage_styles.buttonCreate}' actionUrl='jsp/admin/style/ManageStyles.jsp?view=getCreateStyle' />

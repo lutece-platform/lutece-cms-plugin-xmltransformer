@@ -39,7 +39,7 @@
                 </@manageFeatureItem>
             </#list>
             </@manageFeature>
-            <#if stylesheet_list?size gt 5><@paginationAdmin paginator=paginator combo=1 /></#if>
+            <#if paginator.itemsCount gt 5><@paginationAdmin paginator=paginator combo=1 /></#if>
         <#else>
             <@card>
                 <@empty title='#i18n{portal.util.labelNoItem}' iconName='file-off' actionTitle='#i18n{xmltransformer.manage_stylesheets.buttonAdd}' actionUrl='jsp/admin/style/ManageStyleSheets.jsp?view=createStyleSheet&mode_id=${mode_id}' />

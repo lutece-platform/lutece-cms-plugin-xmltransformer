@@ -474,6 +474,36 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
     }
 
     /**
+     * The last page of the list keeps its paginator, even when it holds a few stylesheets: links back to the other pages.
+     *
+     * @throws AccessDeniedException
+     *             never with the right registered
+     */
+    @Test
+    public void testLastPageKeepsThePaginator( ) throws AccessDeniedException
+    {
+        // enough stylesheets for the paginator (more than 5), the last page holding one of them
+        int nTotal = StyleSheetHome.getStyleSheetList( -1 ).size( );
+        while ( nTotal < 8 )
+        {
+            StyleSheet other = new StyleSheet( );
+            other.setDescription( getRandomName( ) );
+            other.setModeId( 0 );
+            other.setStyleId( _style.getId( ) );
+            other.setFile( "other.xsl" );
+            other.setSource( VALID_XSL.getBytes( ) );
+            StyleSheetHome.create( other );
+            nTotal++;
+        }
+        MockHttpServletRequest request = adminRequest( );
+        request.addParameter( "items_per_page", Integer.toString( nTotal - 1 ) );
+        request.addParameter( "page_index", "2" );
+        String strHtml = _instance.getManageStyleSheets( _models, request );
+
+        assertTrue( strHtml.contains( "page_index=1" ), strHtml );
+    }
+
+    /**
      * The list view writes the name and the file of a stylesheet escaped once, as text.
      *
      * @throws AccessDeniedException
