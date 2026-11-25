@@ -355,6 +355,32 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
     }
 
     /**
+     * A modification cannot move a stylesheet onto a style and mode that already have one.
+     *
+     * @throws Exception
+     *             on a test failure
+     */
+    @Test
+    public void testDoModifyStyleSheetRefusesExistingStyleMode( ) throws Exception
+    {
+        StyleSheet other = new StyleSheet( );
+        other.setDescription( getRandomName( ) );
+        other.setModeId( 0 );
+        other.setStyleId( _style.getId( ) );
+        other.setFile( "other.xsl" );
+        other.setSource( VALID_XSL.getBytes( ) );
+        StyleSheetHome.create( other );
+
+        // the form posts the style of the test and mode 0, already taken by the other stylesheet
+        MultipartHttpServletRequest request = stylesheetForm( adminRequest( ), "modifyStyleSheet", getRandomName( ), VALID_XSL );
+        _instance.processController( request, new RedirectResponse( ) );
+
+        assertNotNull( AdminMessageService.getMessage( request ) );
+        assertEquals( 1, StyleSheetHome.findByPrimaryKey( _stylesheet.getId( ) ).getModeId( ) );
+        assertEquals( 1, StyleSheetHome.getStyleSheetNbPerStyleMode( _style.getId( ), 0 ) );
+    }
+
+    /**
      * The list view writes the name and the file of a stylesheet escaped once, as text.
      *
      * @throws AccessDeniedException

@@ -390,7 +390,10 @@ public class StyleSheetJspBean extends MVCAdminJspBean
         int nStyleId = Integer.parseInt( strStyleId );
         int nModeId = Integer.parseInt( strModeId );
 
-        if ( ( stylesheet.getId( ) == 0 ) && ( StyleSheetHome.getStyleSheetNbPerStyleMode( nStyleId, nModeId ) >= 1 ) )
+        // a new stylesheet, or one moved to another style or mode, must not join a style and mode that already have one
+        boolean bStyleModeChanged = ( stylesheet.getId( ) == 0 ) || ( stylesheet.getStyleId( ) != nStyleId ) || ( stylesheet.getModeId( ) != nModeId );
+
+        if ( bStyleModeChanged && ( StyleSheetHome.getStyleSheetNbPerStyleMode( nStyleId, nModeId ) >= 1 ) )
         {
             return AdminMessageService.getMessageUrl( request, MESSAGE_STYLESHEET_ALREADY_EXISTS, AdminMessage.TYPE_STOP );
         }
