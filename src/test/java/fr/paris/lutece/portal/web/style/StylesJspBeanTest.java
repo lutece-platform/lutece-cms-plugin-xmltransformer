@@ -47,6 +47,7 @@ import fr.paris.lutece.portal.business.style.Style;
 import fr.paris.lutece.portal.business.style.StyleHome;
 import fr.paris.lutece.portal.business.stylesheet.StyleSheet;
 import fr.paris.lutece.portal.business.stylesheet.StyleSheetHome;
+import fr.paris.lutece.portal.business.right.Right;
 import fr.paris.lutece.portal.business.user.AdminUser;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.i18n.I18nService;
@@ -58,6 +59,7 @@ import fr.paris.lutece.portal.web.constants.Parameters;
 import fr.paris.lutece.test.LuteceTestCase;
 import fr.paris.lutece.test.mocks.MockHttpServletRequest;
 import fr.paris.lutece.test.mocks.MockHttpServletResponse;
+import fr.paris.lutece.portal.web.stylesheet.StyleSheetJspBean;
 import jakarta.inject.Inject;
 
 /**
@@ -272,8 +274,9 @@ public class StylesJspBeanTest extends LuteceTestCase
         StyleSheetHome.create( stylesheet );
         try
         {
+            // an administrator who also manages the stylesheets is sent to the removal of the stylesheet first
             MockHttpServletRequest request = new MockHttpServletRequest( );
-            AdminUserUtils.registerAdminUserWithRight( request, new AdminUser( ), StylesJspBean.RIGHT_MANAGE_STYLE );       
+            registerAdminWithRights( request, StylesJspBean.RIGHT_MANAGE_STYLE, StyleSheetJspBean.RIGHT_MANAGE_STYLESHEET );
             instance.init( request, StylesJspBean.RIGHT_MANAGE_STYLE );        	
             request.addParameter( "id", Integer.toString( style.getId( ) ) );
             request.addParameter( "view", "getConfirmRemoveStyle" );
@@ -295,6 +298,74 @@ public class StylesJspBeanTest extends LuteceTestCase
         {
             StyleSheetHome.remove( stylesheet.getId( ) );
         }
+    }
+
+    /**
+     * An administrator who manages the styles only is told to remove the stylesheets first, not sent to the stylesheet
+     * screens (access denied there).
+     *
+     * @throws AccessDeniedException
+     *             never with the right registered
+     */
+    @Test
+    public void testGetConfirmRemoveStyleWithStyleSheetWithoutStyleSheetRight( ) throws AccessDeniedException
+    {
+        StyleSheet stylesheet = new StyleSheet( );
+        stylesheet.setDescription( getRandomName( ) );
+        stylesheet.setModeId( 1 );
+        stylesheet.setStyleId( style.getId( ) );
+        stylesheet.setFile( "file" );
+        stylesheet.setSource( "<a/>".getBytes( ) );
+        StyleSheetHome.create( stylesheet );
+        try
+        {
+            MockHttpServletRequest request = new MockHttpServletRequest( );
+            AdminUserUtils.registerAdminUserWithRight( request, new AdminUser( ), StylesJspBean.RIGHT_MANAGE_STYLE );
+            instance.init( request, StylesJspBean.RIGHT_MANAGE_STYLE );
+            request.addParameter( "id", Integer.toString( style.getId( ) ) );
+            request.addParameter( "view", "getConfirmRemoveStyle" );
+            String [ ] location = new String [ 1 ];
+            instance.processController( request, new MockHttpServletResponse( )
+            {
+                @Override
+                public void sendRedirect( String strLocation )
+                {
+                    location [0] = strLocation;
+                }
+            } );
+            assertNotNull( location [0] );
+            assertFalse( location [0].contains( "ManageStyleSheets.jsp" ), location [0] );
+            AdminMessage message = AdminMessageService.getMessage( request );
+            assertNotNull( message );
+            assertEquals( AdminMessage.TYPE_STOP, message.getType( ) );
+            assertNotNull( StyleHome.findByPrimaryKey( style.getId( ) ) );
+        }
+        finally
+        {
+            StyleSheetHome.remove( stylesheet.getId( ) );
+        }
+    }
+
+    /**
+     * Registers an administrator holding the given rights.
+     *
+     * @param request
+     *            the request
+     * @param rights
+     *            the rights
+     */
+    private static void registerAdminWithRights( MockHttpServletRequest request, String... rights )
+    {
+        AdminUser user = new AdminUser( );
+        AdminUserUtils.registerAdminUserWithRight( request, user, rights [0] );
+        java.util.Map<String, Right> mapRights = new java.util.HashMap<>( user.getRights( ) );
+        for ( String strRight : rights )
+        {
+            Right right = new Right( );
+            right.setId( strRight );
+            mapRights.put( strRight, right );
+        }
+        user.setRights( mapRights );
     }
 
     /**

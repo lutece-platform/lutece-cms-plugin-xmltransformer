@@ -67,6 +67,7 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.util.mvc.utils.MVCUtils;
 import fr.paris.lutece.portal.web.cdi.mvc.Models;
 import fr.paris.lutece.portal.web.constants.Parameters;
+import fr.paris.lutece.portal.web.stylesheet.StyleSheetJspBean;
 import fr.paris.lutece.portal.web.util.IPager;
 import fr.paris.lutece.portal.web.util.Pager;
 import fr.paris.lutece.util.html.HtmlTemplate;
@@ -140,6 +141,7 @@ public class StylesJspBean extends MVCAdminJspBean
     private static final String MESSAGE_CANT_DELETE_STYLE_PORTLETS = "xmltransformer.message.cannotDeleteStylePorlets";
 
     private static final String MESSAGE_CONFIRM_DELETE_STYLE = "xmltransformer.message.confirmDeleteStyle";
+    private static final String MESSAGE_CANT_DELETE_STYLE_STYLESHEETS = "xmltransformer.message.cannotDeleteStyleStyleSheets";
     private static final String MESSAGE_CREATE_STYLE_INVALID_FORMAT_ID = "xmltransformer.message.createStyle.InvalidIdFormat";
     private static final String MESSAGE_CREATE_STYLE_ID_ALREADY_EXISTS = "xmltransformer.message.createStyle.idAlreadyExists";
     private static final String MESSAGE_CREATE_STYLE_COMPONENT_EXISTS = "xmltransformer.message.createStyle.componentHasAlreadyAStyle";
@@ -352,6 +354,13 @@ public class StylesJspBean extends MVCAdminJspBean
         if ( CollectionUtils.isNotEmpty( listPortlets ) )
         {
             String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CANT_DELETE_STYLE_PORTLETS, JSP_MANAGE_STYLESHEETS, AdminMessage.TYPE_STOP );
+            return redirect( request, strMessageUrl );
+        }
+
+        if ( CollectionUtils.isNotEmpty( listStyleSheets ) && !getUser( ).checkRight( StyleSheetJspBean.RIGHT_MANAGE_STYLESHEET ) )
+        {
+            // the stylesheets of the style are removed through the stylesheet screens, which need their own right
+            String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CANT_DELETE_STYLE_STYLESHEETS, JSP_MANAGE_STYLESHEETS, AdminMessage.TYPE_STOP );
             return redirect( request, strMessageUrl );
         }
 
