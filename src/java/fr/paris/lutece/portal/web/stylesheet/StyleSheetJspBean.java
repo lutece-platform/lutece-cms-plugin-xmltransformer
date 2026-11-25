@@ -46,6 +46,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.InputSource;
 
 import fr.paris.lutece.portal.business.portalcomponent.PortalComponentHome;
+import fr.paris.lutece.portal.business.portlet.PortletHome;
 import fr.paris.lutece.portal.business.portlet.PortletType;
 import fr.paris.lutece.portal.business.portlet.PortletTypeHome;
 import fr.paris.lutece.portal.business.style.ModeHome;
@@ -117,6 +118,7 @@ public class StyleSheetJspBean extends MVCAdminJspBean
     private static final String MESSAGE_CONFIRM_DELETE_STYLESHEET = "xmltransformer.message.stylesheetConfirmDelete";
     private static final String MESSAGE_CONFIRM_REMOVE_STYLESHEET = "xmltransformer.message.stylesheetConfirmRemove";
     private static final String MESSAGE_STYLESHEET_NOT_FOUND = "xmltransformer.message.stylesheetNotFound";
+    private static final String MESSAGE_STYLESHEET_USED_BY_PORTLETS = "xmltransformer.message.stylesheetUsedByPortlets";
     private static final String LABEL_ALL = "portal.util.labelAll";
     private static final String JSP_CONFIRM_REMOVE_STYLE = "ManageStyles.jsp?view=getConfirmRemoveStyle&id=";
     private static final String NO_MODE = "-1";
@@ -279,6 +281,11 @@ public class StyleSheetJspBean extends MVCAdminJspBean
             return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_STYLESHEET_NOT_FOUND, AdminMessage.TYPE_STOP ) );
         }
 
+        if ( isOnlyStyleSheetOfUsedStyle( stylesheet ) )
+        {
+            return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_STYLESHEET_USED_BY_PORTLETS, AdminMessage.TYPE_STOP ) );
+        }
+
         Map<String, Object> parameters = new HashMap<>( );
         parameters.put( Parameters.STYLESHEET_ID, Integer.toString( stylesheet.getId( ) ) );
         String strStyleId = request.getParameter( Parameters.STYLE_ID );
@@ -312,6 +319,11 @@ public class StyleSheetJspBean extends MVCAdminJspBean
 
         if ( stylesheet != null )
         {
+            if ( isOnlyStyleSheetOfUsedStyle( stylesheet ) )
+            {
+                return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_STYLESHEET_USED_BY_PORTLETS, AdminMessage.TYPE_STOP ) );
+            }
+
             StyleSheetHome.remove( stylesheet.getId( ) );
         }
 
@@ -348,6 +360,20 @@ public class StyleSheetJspBean extends MVCAdminJspBean
         }
 
         return listStyles;
+    }
+
+    /**
+     * Tells whether the stylesheet is the only one of its style for its mode while portlets use that style: removing it (or
+     * moving it to another style or mode) would leave these portlets without stylesheet and break the pages that show them.
+     *
+     * @param stylesheet
+     *            the stylesheet, with its stored style and mode
+     * @return true when the stylesheet must be kept
+     */
+    private static boolean isOnlyStyleSheetOfUsedStyle( StyleSheet stylesheet )
+    {
+        return ( StyleSheetHome.getStyleSheetNbPerStyleMode( stylesheet.getStyleId( ), stylesheet.getModeId( ) ) <= 1 )
+                && !PortletHome.getPortletListByStyle( stylesheet.getStyleId( ) ).isEmpty( );
     }
 
     /**
@@ -396,6 +422,12 @@ public class StyleSheetJspBean extends MVCAdminJspBean
         if ( bStyleModeChanged && ( StyleSheetHome.getStyleSheetNbPerStyleMode( nStyleId, nModeId ) >= 1 ) )
         {
             return AdminMessageService.getMessageUrl( request, MESSAGE_STYLESHEET_ALREADY_EXISTS, AdminMessage.TYPE_STOP );
+        }
+
+        // a stylesheet moved away must not leave the portlets of its style without stylesheet
+        if ( ( stylesheet.getId( ) != 0 ) && bStyleModeChanged && isOnlyStyleSheetOfUsedStyle( stylesheet ) )
+        {
+            return AdminMessageService.getMessageUrl( request, MESSAGE_STYLESHEET_USED_BY_PORTLETS, AdminMessage.TYPE_STOP );
         }
 
         byte [ ] baXslSource = source.get( );

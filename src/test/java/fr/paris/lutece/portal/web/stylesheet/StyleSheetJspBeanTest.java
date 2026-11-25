@@ -63,6 +63,7 @@ import fr.paris.lutece.test.mocks.MockHttpServletRequest;
 import fr.paris.lutece.test.mocks.MockHttpServletResponse;
 import fr.paris.lutece.test.mocks.MockMultipartItem;
 import fr.paris.lutece.test.mocks.TemporaryMultipartItemFactory;
+import fr.paris.lutece.util.sql.DAOUtil;
 import jakarta.inject.Inject;
 
 /**
@@ -352,6 +353,98 @@ public class StyleSheetJspBeanTest extends LuteceTestCase
 
         assertNull( StyleSheetHome.findByPrimaryKey( _stylesheet.getId( ) ) );
         assertTrue( response.getLocation( ).contains( "view=getConfirmRemoveStyle&id=" + _style.getId( ) ), response.getLocation( ) );
+    }
+
+    /**
+     * Creates a portlet that uses the style of the test (row only, enough for the usage check).
+     *
+     * @return the portlet id
+     */
+    private int createPortletUsingStyle( )
+    {
+        int nId;
+        try ( DAOUtil daoUtil = new DAOUtil( "SELECT MAX(id_portlet) FROM core_portlet" ) )
+        {
+            daoUtil.executeQuery( );
+            nId = ( daoUtil.next( ) ? daoUtil.getInt( 1 ) : 0 ) + 1000;
+        }
+        try ( DAOUtil daoUtil = new DAOUtil( "INSERT INTO core_portlet ( id_portlet, id_portlet_type, id_page, name, status, portlet_order, column_no, id_style, display_portlet_title ) VALUES ( ?, 'junit', 1, 'junit', 0, 1, 1, ?, 0 )" ) )
+        {
+            daoUtil.setInt( 1, nId );
+            daoUtil.setInt( 2, _style.getId( ) );
+            daoUtil.executeUpdate( );
+        }
+        return nId;
+    }
+
+    /**
+     * Removes a portlet row created by the test.
+     *
+     * @param nId
+     *            the portlet id
+     */
+    private static void removePortlet( int nId )
+    {
+        try ( DAOUtil daoUtil = new DAOUtil( "DELETE FROM core_portlet WHERE id_portlet = ?" ) )
+        {
+            daoUtil.setInt( 1, nId );
+            daoUtil.executeUpdate( );
+        }
+    }
+
+    /**
+     * The only stylesheet of a style used by portlets cannot be removed: the pages showing these portlets would fail.
+     *
+     * @throws Exception
+     *             on a test failure
+     */
+    @Test
+    public void testOnlyStyleSheetOfUsedStyleIsNotRemoved( ) throws Exception
+    {
+        int nPortlet = createPortletUsingStyle( );
+        try
+        {
+            MockHttpServletRequest confirm = adminRequest( );
+            confirm.addParameter( Parameters.STYLESHEET_ID, Integer.toString( _stylesheet.getId( ) ) );
+            _instance.getConfirmRemoveStyleSheet( confirm );
+            AdminMessage message = AdminMessageService.getMessage( confirm );
+            assertNotNull( message );
+            assertEquals( AdminMessage.TYPE_STOP, message.getType( ) );
+
+            MockHttpServletRequest request = adminRequest( );
+            request.addParameter( "action", "removeStyleSheet" );
+            request.addParameter( Parameters.STYLESHEET_ID, Integer.toString( _stylesheet.getId( ) ) );
+            _instance.processController( request, new RedirectResponse( ) );
+
+            assertNotNull( StyleSheetHome.findByPrimaryKey( _stylesheet.getId( ) ) );
+        }
+        finally
+        {
+            removePortlet( nPortlet );
+        }
+    }
+
+    /**
+     * The only stylesheet of a style used by portlets cannot be moved to another mode either.
+     *
+     * @throws Exception
+     *             on a test failure
+     */
+    @Test
+    public void testOnlyStyleSheetOfUsedStyleIsNotMoved( ) throws Exception
+    {
+        int nPortlet = createPortletUsingStyle( );
+        try
+        {
+            // the form posts mode 0, the stylesheet of the test is mode 1
+            _instance.processController( stylesheetForm( adminRequest( ), "modifyStyleSheet", getRandomName( ), VALID_XSL ), new RedirectResponse( ) );
+
+            assertEquals( 1, StyleSheetHome.findByPrimaryKey( _stylesheet.getId( ) ).getModeId( ) );
+        }
+        finally
+        {
+            removePortlet( nPortlet );
+        }
     }
 
     /**
