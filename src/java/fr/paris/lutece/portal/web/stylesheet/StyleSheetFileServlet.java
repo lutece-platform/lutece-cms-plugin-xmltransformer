@@ -36,6 +36,8 @@ package fr.paris.lutece.portal.web.stylesheet;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -77,9 +79,15 @@ public class StyleSheetFileServlet extends HttpServlet
 
             if ( strStyleSheetId != null )
             {
-                int nStyleSheetId = Integer.parseInt( strStyleSheetId );
+                int nStyleSheetId = NumberUtils.toInt( strStyleSheetId, 0 );
+                StyleSheet stylesheet = ( nStyleSheetId > 0 ) ? StyleSheetHome.findByPrimaryKey( nStyleSheetId ) : null;
 
-                StyleSheet stylesheet = StyleSheetHome.findByPrimaryKey( nStyleSheetId );
+                if ( stylesheet == null )
+                {
+                    // missing, malformed or unknown id
+                    response.sendError( HttpServletResponse.SC_NOT_FOUND );
+                    return;
+                }
 
                 ServletContext context = getServletConfig( ).getServletContext( );
                 String strMimetype = context.getMimeType( stylesheet.getFile( ) );
